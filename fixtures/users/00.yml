@@ -1,0 +1,5 @@
+email: admin@gmail.com
+firstName: Administrator
+password: admin123456
+roles: ['admin']
+resetKey: ''
