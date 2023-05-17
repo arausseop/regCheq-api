@@ -1,7 +1,8 @@
-import { Entity, model, property, hasMany} from '@loopback/repository';
+import {Entity, hasMany, model, property} from '@loopback/repository';
+import {MeetingAgreementsItem} from './meeting-agreements-item.model';
 import {MeetingParticipant} from './meeting-participant.model';
 
-@model({ settings: { strict: false } })
+@model({settings: {strict: false}})
 export class Meeting extends Entity {
   @property({
     type: 'string',
@@ -61,6 +62,9 @@ export class Meeting extends Entity {
     default: 'Waiting',
   })
   meetingStatus?: string;
+
+  @property.array(MeetingAgreementsItem)
+  agreements?: MeetingAgreementsItem[];
 
   @hasMany(() => MeetingParticipant, {keyTo: 'meeting'})
   meetingParticipants: MeetingParticipant[];

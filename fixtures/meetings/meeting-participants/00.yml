@@ -1,0 +1,23 @@
+participants:
+    - name: "Jhon Doe"
+      email: "Jdoe@gmail.com"
+      invitationStatus: Accepted
+      attendance: false
+      participantType: Extern
+      createdAt: "2023-05-17T08:13:27.298Z"
+      meeting: Welcome Meeting
+    - name: "Brian Oconner"
+      email: "boconner@gmail.com"
+      invitationStatus: Sended
+      attendance: false
+      participantType: Intern
+      createdAt: "2023-05-17T08:13:27.298Z"
+      meeting: Welcome Meeting
+    - name: "Stan Lee"
+      email: "slee@gmail.com"
+      invitationStatus: Declined
+      attendance: false
+      participantType: Extern
+      createdAt: "2023-05-17T08:13:27.298Z"
+      updatedAt: "2023-05-17T08:13:27.298Z"
+      meeting: Welcome Meeting

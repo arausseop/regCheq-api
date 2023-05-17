@@ -1,9 +1,9 @@
-import {ApplicationConfig, RegCheq} from './application';
+import {ApplicationConfig, RegCheqApplication} from './application';
 
 export * from './application';
 
 export async function main(options: ApplicationConfig = {}) {
-  const app = new RegCheq(options);
+  const app = new RegCheqApplication(options);
   await app.boot();
   await app.start();
 

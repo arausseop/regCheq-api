@@ -1,4 +1,4 @@
-import { Entity, model, property } from '@loopback/repository';
+import {Entity, model, property} from '@loopback/repository';
 
 @model()
 export class MeetingParticipant extends Entity {
@@ -53,6 +53,11 @@ export class MeetingParticipant extends Entity {
     type: 'date',
   })
   createdAt?: string;
+
+  @property({
+    type: 'date',
+  })
+  updatedAt?: string;
 
   @property({
     type: 'string',

@@ -9,7 +9,7 @@ const config = {
   port: 27017,
   user: '',
   password: '',
-  database: 'regCheqQuiz',
+  database: 'RegCheqQuiz',
   useNewUrlParser: true
 };
 

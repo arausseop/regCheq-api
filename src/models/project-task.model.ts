@@ -1,4 +1,5 @@
-import { Entity, model, property } from '@loopback/repository';
+import {Entity, model, property} from '@loopback/repository';
+import {TaskAssignedItem} from './task-assigned-item.model';
 
 @model({settings: {strict: false}})
 export class ProjectTask extends Entity {
@@ -31,7 +32,7 @@ export class ProjectTask extends Entity {
     type: 'date',
     required: true,
   })
-  creatdAt: string;
+  createdAt: string;
 
   @property({
     type: 'date',
@@ -55,18 +56,24 @@ export class ProjectTask extends Entity {
     type: 'date',
     default: null,
   })
-  startedAt?: string;
+  taskStartDate?: string;
 
   @property({
-    type: 'array',
-    itemType: 'string',
+    type: 'date',
+    default: null,
   })
-  assignedTo?: string[];
+  startedAt?: string;
+
+  @property.array(TaskAssignedItem)
+  assignedTo?: TaskAssignedItem[];
 
   @property({
     type: 'string',
   })
   project?: string;
+
+
+
   // Define well-known properties here
 
   // Indexer property to allow additional data

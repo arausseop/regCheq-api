@@ -5,3 +5,4 @@ export * from './meeting.model';
 export * from './project-task.model';
 export * from './project.model';
 
+export * from './task-assigned-item.model';

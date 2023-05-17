@@ -1,0 +1,35 @@
+tasks:
+    - name: Task One
+      description: Analyze requirement document
+      status: Finished
+      taskStartDate: "2023-05-11T04:40:26.315Z"
+      createdAt: "2023-05-10T08:55:37.674Z"
+      updatedAt: "2023-05-15T04:40:26.315Z"
+      expiredAt: "2023-05-15T08:55:37.674Z"
+      startedAt: "2023-05-11T10:55:37.674Z"
+      finishedAt: "2023-05-11T12:55:37.674Z"
+      assignedTo:
+          - name: Alcides Rausseo
+            email: arausseo@gmail.com
+            type: Intern
+          - name: Jon Doe
+            email: jdoe@gmail.com
+            type: Intern
+          - name: Dominc Toretto
+            email: dtoretto@gmail.com
+            type: Extern
+      project: Project Three
+    - name: Task Two
+      description: Desing Relational Entity Model
+      status: Finished
+      taskStartDate: "2023-05-11T04:40:26.315Z"
+      createdAt: "2023-05-10T08:55:37.674Z"
+      updatedAt: "2023-05-15T04:40:26.315Z"
+      expiredAt: "2023-05-15T08:55:37.674Z"
+      startedAt: "2023-05-11T10:55:37.674Z"
+      finishedAt: "2023-05-11T14:55:37.674Z"
+      assignedTo:
+          - name: Jon Doe
+            email: jdoe@gmail.com
+            type: Intern
+      project: Project Three
