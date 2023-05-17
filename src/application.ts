@@ -1,11 +1,10 @@
 import {AuthenticationComponent} from '@loopback/authentication';
 import {
   JWTAuthenticationComponent,
-  UserRepository,
-  UserServiceBindings,
+  TokenServiceBindings
 } from '@loopback/authentication-jwt';
 import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
+import {ApplicationConfig, BindingKey, createBindingFromClass} from '@loopback/core';
 import {RepositoryMixin, SchemaMigrationOptions} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {
@@ -13,17 +12,32 @@ import {
   RestExplorerComponent,
 } from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import {MongoDataSource} from './datasources';
-import {TaskAssignedItem} from './models';
+import {PasswordHasherBindings, UserServiceBindings} from './keys';
+import {ErrorHandlerMiddlewareProvider} from './middlewares';
+import {TaskAssignedItem, UserWithPassword} from './models';
 import {MeetingAgreementsItem} from './models/meeting-agreements-item.model';
-import {CustomerRepository, MeetingParticipantRepository, MeetingRepository, ProjectRepository, ProjectTaskRepository} from './repositories';
+import {CustomerRepository, MeetingParticipantRepository, MeetingRepository, ProjectRepository, ProjectTaskRepository, UserRepository} from './repositories';
 import {MySequence} from './sequence';
+import {BcryptHasher, UserManagementService} from './services';
+import {SecuritySpecEnhancer} from './services/jwt-spec.enhancer';
+import {JWTService} from './services/jwt.service';
 const ObjectId = require('mongodb').ObjectId
 import YAML = require('yaml');
-
 export {ApplicationConfig};
+
+export interface PackageInfo {
+  name: string;
+  version: string;
+  description: string;
+}
+
+export const PackageKey = BindingKey.create<PackageInfo>('application.package');
+
+const pkg: PackageInfo = require('../package.json');
+
 
 export class RegCheqApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -33,11 +47,13 @@ export class RegCheqApplication extends BootMixin(
 
     this.component(AuthenticationComponent);
 
+
     // Mount jwt component
     this.component(JWTAuthenticationComponent);
 
     // Bind datasource
-    this.dataSource(MongoDataSource, UserServiceBindings.DATASOURCE_NAME);
+    // this.dataSource(MongoDataSource, UserServiceBindings.DATASOURCE_NAME);
+    this.setUpBindings();
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -63,21 +79,46 @@ export class RegCheqApplication extends BootMixin(
     };
   }
 
+  setUpBindings(): void {
+    // Bind package.json to the application context
+    this.bind(PackageKey).to(pkg);
+
+    // Bind bcrypt hash services
+    this.bind(PasswordHasherBindings.ROUNDS).to(10);
+    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
+    this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
+
+    this.bind(UserServiceBindings.USER_SERVICE).toClass(UserManagementService);
+    this.add(createBindingFromClass(SecuritySpecEnhancer));
+
+    this.add(createBindingFromClass(ErrorHandlerMiddlewareProvider));
+
+    // Use JWT secret from JWT_SECRET environment variable if set
+    // otherwise create a random string of 64 hex digits
+    const secret =
+      process.env.JWT_SECRET ?? crypto.randomBytes(32).toString('hex');
+    this.bind(TokenServiceBindings.TOKEN_SECRET).to(secret);
+  }
+
   async migrateSchema(options?: SchemaMigrationOptions): Promise<void> {
     await super.migrateSchema(options);
 
     // Pre-populate users
+    // Pre-populate users
     const userRepo = await this.getRepository(UserRepository);
     await userRepo.deleteAll();
     const usersDir = path.join(__dirname, '../fixtures/users');
-    const usersFiles = fs.readdirSync(usersDir);
+    const userFiles = fs.readdirSync(usersDir);
 
-    for (const file of usersFiles) {
+    for (const file of userFiles) {
       if (file.endsWith('.yml')) {
         const userFile = path.join(usersDir, file);
-        const yamlString = fs.readFileSync(userFile, 'utf8');
-        const user = YAML.parse(yamlString);
-        await userRepo.create(user);
+        const yamlString = YAML.parse(fs.readFileSync(userFile, 'utf8'));
+        const userWithPassword = new UserWithPassword(yamlString);
+        const userManagementService = await this.get<UserManagementService>(
+          UserServiceBindings.USER_SERVICE,
+        );
+        await userManagementService.createUser(userWithPassword);
       }
     }
 
