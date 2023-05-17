@@ -66,6 +66,21 @@ export class RegCheqApplication extends BootMixin(
   async migrateSchema(options?: SchemaMigrationOptions): Promise<void> {
     await super.migrateSchema(options);
 
+    // Pre-populate users
+    const userRepo = await this.getRepository(UserRepository);
+    await userRepo.deleteAll();
+    const usersDir = path.join(__dirname, '../fixtures/users');
+    const usersFiles = fs.readdirSync(usersDir);
+
+    for (const file of usersFiles) {
+      if (file.endsWith('.yml')) {
+        const userFile = path.join(usersDir, file);
+        const yamlString = fs.readFileSync(userFile, 'utf8');
+        const user = YAML.parse(yamlString);
+        await userRepo.create(user);
+      }
+    }
+
     // Pre-populate customers
     const customerRepo = await this.getRepository(CustomerRepository);
     await customerRepo.deleteAll();
@@ -190,9 +205,5 @@ export class RegCheqApplication extends BootMixin(
         }
       }
     }
-
-    // Pre-populate users
-    const userRepo = await this.getRepository(UserRepository);
-    await userRepo.deleteAll();
   }
 }
